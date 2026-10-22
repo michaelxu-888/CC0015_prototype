@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5ef">
+  <meta name="description" content="PACKPAUSE. Track today, pause before a cigarette, and see your progress.">
+  <meta name="apple-mobile-web-app-title" content="PACKPAUSE">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>PACKPAUSE — Every choice counts</title>
+  <style>
+    :root{color-scheme:light;--bg:#f7f5ef;--paper:#fffcf6;--ink:#20392d;--forest:#183d30;--sage:#d6e5d8;--muted:#67786c;--line:#e3e7dd;--cream:#f3eee4;--gold:#c6ad7a;--serif:Georgia,"Iowan Old Style","Palatino Linotype",serif;--sans:"Avenir Next",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-family:var(--sans)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:#e8ece5;line-height:1.45}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #7ca58d;outline-offset:3px}p,h1,h2,h3{margin:0}a{color:var(--forest)}
+    .app{max-width:460px;margin:auto;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;box-shadow:0 16px 60px #122c2010}
+    .header{padding:18px 23px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:850;letter-spacing:.18em}
+    .mark{height:29px;width:29px;display:flex;justify-content:center;align-items:center;gap:4px;background:var(--forest);border-radius:9px}.mark i{width:4px;height:13px;display:block;border-radius:3px;background:#e0ede2}
+    .icon-btn{height:42px;width:42px;border:0;background:transparent;border-radius:12px;color:var(--forest);font-size:26px;line-height:1}
+    .main{padding:32px 23px 38px;flex:1}.screen{animation:fade .18s ease-out}@keyframes fade{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .kicker{font-size:10px;font-weight:800;color:#77887b;letter-spacing:.2em;text-transform:uppercase;margin:0 0 12px}
+    h1{font-family:var(--serif);font-size:clamp(33px,8vw,40px);font-weight:500;letter-spacing:-.045em;line-height:1.1;margin:0 0 17px}h2{font-family:var(--serif);font-size:29px;font-weight:500;letter-spacing:-.04em;line-height:1.16;margin:0 0 14px}
+    .subtle{font-size:13px;color:var(--muted);line-height:1.5}.intro{margin-bottom:22px}.hero-note{font-size:14px;color:#5f7265;line-height:1.55;max-width:32ch;margin-bottom:20px}
+    .today-card{background:var(--forest);color:#f7fbf6;border-radius:25px;padding:24px 25px 23px;position:relative;overflow:hidden}
+    .today-card:after{content:"";position:absolute;width:210px;height:210px;border:1px solid #ffffff16;border-radius:50%;top:-130px;right:-92px;pointer-events:none}
+    .today-card .mini{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#c5d7c8;font-weight:800}
+    .big-number{font-family:var(--serif);font-weight:500;font-size:clamp(78px,23vw,96px);line-height:1;letter-spacing:-.06em;margin:12px 0 0;font-variant-numeric:tabular-nums}
+    .today-card .description{font-size:14px;color:#e0eae1;margin-top:3px}
+    .today-card .foot{border-top:1px solid #ffffff27;font-size:12px;color:#c3d6ca;margin-top:20px;padding-top:13px}
+    .quick-buttons{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:15px 0 26px}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 0 14px}.mini-card{background:linear-gradient(180deg,#fffdf8 0%,#fbfaf5 100%);border:1px solid var(--line);border-radius:20px;padding:16px 16px 15px;box-shadow:0 10px 24px rgba(24,61,48,.03)}.mini-card.accent{background:#edf3ec}.mini-label{display:block;font-size:11px;font-weight:800;color:#6e7c72;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}.mini-card strong{display:block;font-family:var(--serif);font-size:44px;line-height:1;font-weight:500;letter-spacing:-.05em}
+    .action{border-radius:17px;min-height:66px;padding:10px 12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:750;border:1px solid var(--line);background:var(--paper);color:var(--forest)}
+    .action span{font-size:22px;line-height:1;font-weight:300}.action.primary{background:#d7e7d9;border-color:#c8dfce;color:#183d30}
+    .action:active,.choice:active,.result-option:active{transform:scale(.985)}
+    .section-title{font-size:12px;font-weight:800;display:flex;justify-content:space-between;align-items:center;letter-spacing:.02em;margin:0 0 12px}.section-title .hint{font-size:11px;color:var(--muted);font-weight:500}
+    .chart{display:grid;grid-template-columns:repeat(var(--cols,7),minmax(0,1fr));gap:6px;background:linear-gradient(180deg,#fffdf8 0%,#fbfaf5 100%);border:1px solid var(--line);border-radius:20px;padding:17px 10px 12px;min-height:152px;box-shadow:0 10px 24px rgba(24,61,48,.03)}.chart.chart-14 .day .value{font-size:9px}.chart.chart-14 .day small{font-size:9px}.chart.chart-14 .day .subvalue{font-size:8px;color:#859488;font-weight:700;line-height:1}
+    .day{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}.track{height:88px;width:100%;display:flex;justify-content:center;align-items:end;border-bottom:1px solid var(--line)}.bar{width:min(24px,85%);background:#658f78;border-radius:6px 6px 0 0;min-height:3px}.bar.partial{background:#bad0be}.bar.none{height:3px!important;background:#e6e8e2}.bar.zero{height:3px!important;background:#658f78}.day small{font-size:10px;color:var(--muted);white-space:nowrap}.day .value{font-size:10px;font-weight:750;color:#728878}.tiny{font-size:11px;color:#788479;line-height:1.5;margin-top:10px}.top-actions{display:flex;justify-content:space-between;align-items:center;margin:-6px 0 14px}.ghost-link{border:0;background:transparent;color:var(--forest);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;min-height:36px;padding:0}.ghost-link span{font-size:16px;vertical-align:-1px;margin-right:4px}.ghost-link.soft{color:#718274}
+    .empty-chart{border:1px solid var(--line);border-radius:19px;background:var(--paper);padding:26px 16px;color:var(--muted);font-size:13px;text-align:center}
+    details{border:1px solid var(--line);border-radius:17px;background:var(--paper);overflow:hidden;margin-top:16px}
+    summary{padding:17px;min-height:55px;cursor:pointer;font-size:13px;font-weight:750}details .inside{padding:16px;border-top:1px solid var(--line)}.inputs{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-bottom:13px}.inputs.inputs-3{grid-template-columns:1.2fr .8fr .8fr}.field{display:block;color:var(--muted);font-size:11px;font-weight:750;margin-bottom:6px}.input{width:100%;min-width:0;min-height:47px;border:1px solid #d9dfd6;border-radius:11px;padding:9px;background:#fff;color:var(--ink);font-size:16px}
+    .button{width:100%;min-height:52px;border-radius:15px;border:1px solid var(--forest);background:var(--forest);color:#fff;padding:12px 16px;font-size:14px;font-weight:750}.button.secondary{background:var(--paper);color:var(--forest);border-color:#d2dbd1}.button.light{background:transparent;border:0;color:var(--muted);font-size:13px}.buttons{display:grid;gap:11px}
+    .choice{width:100%;min-height:86px;display:flex;align-items:center;gap:15px;text-align:left;padding:16px 18px;border:1px solid var(--line);background:linear-gradient(180deg,#fffdf8 0%,#fbfaf5 100%);border-radius:21px;color:var(--ink);font-weight:730;font-size:17px;box-shadow:0 10px 24px rgba(24,61,48,.04)}
+    .choices{display:grid;gap:12px}.symbol{display:grid;place-items:center;width:46px;height:46px;border-radius:15px;flex-shrink:0;background:#eaf1e9;color:var(--forest);font-size:21px;border:1px solid rgba(24,61,48,.05)}.choice:nth-child(2) .symbol{background:var(--cream);color:#826f51}.choice:nth-child(3) .symbol{background:#eff0f5;color:#606986}.arrow{font-size:22px;font-weight:300;color:#8a9b8f;margin-left:auto}.choice-copy{display:flex;flex-direction:column;gap:2px}.choice-copy small{font-size:12px;color:#75857b;font-weight:600}
+    .back{border:0;background:transparent;color:var(--forest);font-weight:740;font-size:13px;min-height:45px;margin:0 0 11px;padding:0}
+    .activity{border-radius:24px;background:linear-gradient(180deg,#edf3ec 0%,#eef2eb 100%);border:1px solid #e2e9de;padding:24px 18px;text-align:center;margin:17px 0 16px;box-shadow:0 12px 28px rgba(24,61,48,.04)}.activity .big{font-family:var(--serif);font-size:25px;font-weight:500;letter-spacing:-.03em;line-height:1.3;margin:0 0 10px}.activity .hint{font-size:14px;color:#5d7463;line-height:1.65}.activity-quote{font-family:var(--serif);font-size:24px;line-height:1.3;font-weight:500}.activity-quote:before{content:'“'}.activity-quote:after{content:'”'}.encourage{margin-top:12px;color:#5d7463;font-size:13px;line-height:1.5;min-height:38px}.option-list{display:grid;gap:9px;margin-top:8px}.option-chip{width:100%;min-height:50px;padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--forest);font-size:14px;font-weight:700}
+    .orb{display:grid;place-items:center;border-radius:50%;width:124px;height:124px;margin:8px auto 14px;background:#daeade;border:10px solid #c1d9c6;color:var(--forest);font-size:13px;font-weight:750;box-shadow:inset 0 6px 14px rgba(255,255,255,.45)}.orb.animating{animation:breath 10s ease-in-out infinite}@keyframes breath{0%,100%{transform:scale(.91)}40%{transform:scale(1.1)}}
+    .timer{font-family:var(--serif);font-size:38px;font-variant-numeric:tabular-nums;line-height:1.2;margin-bottom:8px}.timer-control{background:transparent;border:0;color:var(--forest);font-weight:750;font-size:13px;min-height:47px;width:100%;margin:0 0 4px}
+    .results{display:grid;gap:10px;margin-top:24px}.result-option{min-height:69px;background:var(--paper);color:var(--forest);text-align:left;display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:17px;padding:15px 17px;font-size:15px;font-weight:750}.result-option span{font-size:20px;color:#88a691}.result-quiet{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+    .setting-item{padding:15px 0;border-bottom:1px solid var(--line)}.setting-item h3{font-size:14px;margin-bottom:5px}.setting-item p{font-size:12px;color:var(--muted);margin:0 0 11px}.setting-item:last-child{border-bottom:0}.mono{overflow-wrap:anywhere;color:#657868;font-size:12px;margin-bottom:12px}
+    .footer{position:sticky;bottom:0;display:flex;gap:7px;padding:6px 12px calc(6px + env(safe-area-inset-bottom));background:#fffcf7ee;border-top:1px solid var(--line);backdrop-filter:blur(15px)}
+    .tab{flex:1;display:grid;place-items:center;align-content:center;gap:1px;min-height:60px;border:0;border-radius:14px;background:transparent;color:#859487;font-size:12px;font-weight:750}.tab span{font-size:21px;line-height:1.25}.tab.selected{background:#eaf1e8;color:var(--forest)}
+    .banner{display:flex;justify-content:space-between;align-items:center;background:#ede4ce;color:#624f30;padding:9px 23px;font-size:11px;letter-spacing:.04em;font-weight:800}.banner button{border:1px solid #d1bf9b;border-radius:8px;min-height:34px;color:inherit;background:transparent;padding:5px 12px}
+    .notice{position:fixed;z-index:10;left:50%;transform:translateX(-50%);bottom:88px;max-width:min(370px,94vw);width:max-content;background:#1c3e30;color:#fff;border-radius:14px;padding:9px 12px 9px 15px;display:flex;gap:14px;align-items:center;font-size:12px;box-shadow:0 12px 35px #0b221d26}.notice button{min-height:39px;border-radius:9px;border:1px solid #8fac98;background:transparent;color:#fff;font-size:12px;font-weight:800;padding:6px 10px}.hidden{display:none!important}
+    @media(max-width:360px){.header{padding:15px 16px}.main{padding:24px 16px 30px}.quick-buttons{gap:8px}.mini-grid{gap:8px}.mini-card strong{font-size:38px}.action{padding:8px;font-size:13px}.chart{gap:4px;padding:13px 8px 10px}.day small{font-size:8px}.inputs.inputs-3{grid-template-columns:1fr}}
+    @media(min-width:600px){.app{margin:18px auto;min-height:calc(100vh - 36px);border-radius:23px;overflow:hidden}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.screen{animation:none}.orb.animating{animation:none}}
+  </style>
+
+  <style id="v16-refinement">
+    :root{--bg:#f8f7f2;--paper:#fffefb;--ink:#1b3027;--forest:#193c2e;--muted:#56685e;--line:#dfe5dc;--sage:#e4eee4;--cream:#f5f1e8;--serif:ui-serif,"Iowan Old Style","Palatino Linotype",Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Avenir Next","Segoe UI",sans-serif}
+    html{-webkit-text-size-adjust:100%}
+    body{font-size:15px;background:#e7ede6}
+    .app{background:var(--bg)}
+    .header{padding:16px 22px;border-bottom:1px solid #e5e9e1}
+    .brand{font-size:13px;letter-spacing:.145em;font-weight:800}
+    .mark{border-radius:11px;width:34px;height:34px;background:var(--forest);gap:0}
+    .brand-glyph{width:21px;height:21px;color:#f2f6ee}
+    .icon-btn{font-size:26px;min-width:44px;min-height:44px}
+    .main{padding:35px 23px 33px}
+    .kicker{font-size:12px;letter-spacing:.14em;color:#60766a;font-weight:800;margin-bottom:13px}
+    h1{font-size:clamp(45px,11vw,58px);font-weight:500;line-height:1.01;letter-spacing:-.052em;margin-bottom:14px}
+    h2{font-size:clamp(31px,8vw,35px);line-height:1.12}
+    .hero-note{font-size:16px;line-height:1.5;color:#536a5c;max-width:34ch;margin-bottom:23px}
+    .subtle{font-size:15px;line-height:1.5}
+    .top-actions{display:none}
+    .ghost-link{min-height:44px;font-size:13px;color:#365849;letter-spacing:.055em;display:inline-flex;align-items:center;gap:6px}
+    .ghost-link.soft{color:#687c70}
+    .ghost-link span{font-size:18px;margin-right:0;display:flex;align-items:center}
+    .nav-glyph{width:20px;height:20px}
+    .choices{gap:12px}
+    .choice{min-height:99px;padding:18px 17px;border:1px solid #e0e7de;border-radius:22px;background:var(--paper);box-shadow:0 7px 20px rgba(20,45,33,.028);font-size:19px;gap:15px}
+    .choice-copy{gap:4px;line-height:1.18}
+    .choice-copy small{font-size:14px;line-height:1.3;font-weight:500;color:#60756a}
+    .symbol{width:50px;height:50px;border-radius:16px;border:0;background:#eaf2e9;color:#315744}
+    .choice:nth-child(2) .symbol{background:#f2eee4;color:#806e4d}
+    .choice:nth-child(3) .symbol{background:#eff0f1;color:#536879}
+    .glyph{width:25px;height:25px;display:block}
+    .arrow{font-size:25px;color:#9baa9b}
+    .choice:active,.action:active,.result-option:active{transform:scale(.992)}
+    .choice:hover{border-color:#c8d7c9}
+    .footer{background:rgba(255,254,250,.96);border-color:#dfe6dc;padding:7px 12px calc(7px + env(safe-area-inset-bottom))}
+    .tab{font-size:13px;min-height:61px;gap:3px;font-weight:750}
+    .tab span{font-size:20px;line-height:1.1;display:grid;place-items:center}
+    .tab.selected{background:#e6eee5}
+    .back{font-size:14px;min-height:44px}
+    .button,.action{font-size:16px;font-weight:750}
+    .action{min-height:64px;border-radius:16px}
+    .activity{padding:26px 19px;border-radius:24px}
+    .activity .hint{font-size:15px}
+    .activity .big{font-size:29px}
+    .orb{font-size:15px;width:134px;height:134px}
+    .timer{font-size:45px}
+    .timer-control{font-size:15px}
+    .encourage{font-size:15px;min-height:46px;color:#456452}
+    .option-chip{min-height:55px;font-size:16px;font-weight:680}
+    .result-option{min-height:72px;font-size:16px}
+    .result-quiet{font-size:14px}
+    .mini-label{font-size:13px;letter-spacing:.055em;color:#4e6758}
+    .mini-card strong{font-size:53px}
+    .mini-card{padding:18px 18px 17px}
+    .mini-card.accent{background:#e9f1e7}
+    .section-title{font-size:15px;margin-top:5px;margin-bottom:13px;letter-spacing:0;gap:8px;flex-wrap:wrap}
+    .section-title .hint{font-size:13px;color:#627469;font-weight:650}
+    .chart.chart-14{display:flex;flex-direction:column;gap:18px;min-height:0;padding:17px 16px 16px;box-shadow:0 8px 20px rgba(21,46,33,.035)}
+    .week-block+.week-block{padding-top:15px;border-top:1px solid #e3e8e1}
+    .week-name{font-size:11px;letter-spacing:.13em;font-weight:800;color:#728577;margin-bottom:12px}
+    .week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+    .day{gap:5px;min-width:0}
+    .day-numbers{height:16px;display:flex;align-items:center;justify-content:center}
+    .chart.chart-14 .day .value{font-size:12px;color:#385a46;font-weight:750;line-height:1.1}
+    .track{height:82px}
+    .bar{background:#527e63;border-radius:5px 5px 0 0;width:min(24px,74%)}
+    .bar.partial{background:#b2c9b7}
+    .bar.none{background:#e6ebe5}
+    .day-date{font-size:12px;line-height:1.25;color:#687a6d;font-weight:650}
+    .pause-count{height:24px;min-width:24px;display:flex;align-items:center;justify-content:center;background:#e4f0e6;color:#346647;border-radius:30px;font-size:12px;font-weight:800;line-height:1}
+    .legend{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:13px;flex-wrap:wrap;font-size:13px;color:#566d5c}
+    .legend-key{display:inline-flex;align-items:center;gap:7px}
+    .legend-bar{display:inline-block;width:8px;height:15px;border-radius:3px 3px 0 0;background:#527e63}
+    .legend-dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:#e4f0e6;border:2px solid #80ad8b}
+    .tiny{font-size:13px;line-height:1.5;color:#5d7064}
+    .empty-chart{font-size:15px}
+    summary{font-size:15px}
+    .field{font-size:13px}
+    .setting-item h3{font-size:16px}
+    .setting-item p,.mono{font-size:14px;line-height:1.5}
+    .notice{font-size:14px}
+    .banner{font-size:12px}
+    @media(max-width:360px){
+      .main{padding:27px 16px 30px}
+      h1{font-size:45px}
+      .choice{min-height:92px;padding:15px 14px;gap:12px}
+      .symbol{width:46px;height:46px}
+      .chart.chart-14{padding:15px 9px}
+      .week-grid{gap:4px}
+      .week-name{font-size:11px}
+      .day-date,.chart.chart-14 .day .value{font-size:11px}
+      .pause-count{height:23px;min-width:23px;font-size:11px}
+      .section-title .hint{font-size:12px}
+      .inputs.inputs-3{grid-template-columns:1fr 1fr}
+      .inputs.inputs-3>div:first-child{grid-column:1/-1}
+    }
+    @media(min-width:600px){.app{border-radius:26px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.screen,.orb.animating{animation:none}}
+  </style>
+  <style id="v17-screen-fit">
+    /* Screen-first layout: the main action should not require scrolling on common phones. */
+    .app { min-height:100vh; min-height:100dvh; }
+    .header { padding:11px 19px; }
+    .mark { width:32px;height:32px; }
+    .brand { font-size:13px; }
+    .main { padding:24px 21px 24px; }
+    .kicker { font-size:12px;margin-bottom:9px; }
+    h1 { font-size:clamp(43px,10vw,52px);line-height:1.02;margin-bottom:9px; }
+    h2 { font-size:31px;margin-bottom:11px; }
+    .hero-note { font-size:16px;line-height:1.35;margin-bottom:19px;max-width:100%; }
+    .choices { gap:10px; }
+    .choice { min-height:84px;padding:13px 16px;border-radius:19px;font-size:18px;gap:13px; }
+    .symbol {width:46px;height:46px;border-radius:14px;}
+    .choice-copy {gap:3px;}
+    .choice-copy small {font-size:14px;line-height:1.25;}
+    .glyph {width:24px;height:24px;}
+    .footer {padding:5px 11px calc(5px + env(safe-area-inset-bottom));}
+    .tab { min-height:54px;font-size:13px;gap:2px; }
+    .nav-glyph {width:19px;height:19px;}
+    /* Today: preserve both metrics and all fourteen days in a compact, two-week grid. */
+    .mini-grid {gap:10px;margin:0 0 10px;}
+    .mini-card {padding:13px 16px 12px;border-radius:18px;}
+    .mini-card strong {font-size:44px;}
+    .mini-label {font-size:13px;margin-bottom:4px;}
+    .quick-buttons {gap:10px;margin:0 0 18px;}
+    .action {min-height:54px;font-size:15px;border-radius:14px;}
+    .section-title {margin:0 0 9px;gap:5px;font-size:14px;}
+    .section-title .hint {font-size:12px;}
+    .chart.chart-14 {gap:9px;padding:11px 12px 10px;border-radius:19px;}
+    .week-block+.week-block {padding-top:9px;}
+    .week-name {font-size:11px;letter-spacing:.1em;margin-bottom:6px;}
+    .week-grid {gap:6px;}
+    .day {gap:3px;}
+    .day-numbers {height:14px;}
+    .chart.chart-14 .day .value {font-size:12px;}
+    .track {height:35px;}
+    .bar {border-radius:4px 4px 0 0;}
+    .day-date {font-size:12px;}
+    .pause-count {height:22px;min-width:22px;font-size:12px;}
+    .legend {margin-top:9px;gap:20px;font-size:12px;}
+    details {margin-top:11px;}
+    summary {min-height:48px;padding:13px 16px;}
+    /* Intervention: keep controls reachable and retain readable, calm typography. */
+    .back {min-height:38px;margin-bottom:5px;}
+    .activity {padding:18px 16px;margin:10px 0 10px;}
+    .orb {width:114px;height:114px;margin:4px auto 8px;}
+    .timer {font-size:37px;margin-bottom:4px;}
+    .encourage {font-size:15px;min-height:35px;margin-top:9px;}
+    .timer-control {min-height:42px;margin-bottom:3px;}
+    .button {min-height:49px;}
+    .option-list {gap:8px;}
+    .option-chip {min-height:50px;font-size:15px;}
+    .result-option {min-height:60px;}
+    @media(max-width:360px){
+      .header {padding:10px 16px;}
+      .main {padding:21px 16px 22px;}
+      h1{font-size:42px;}
+      .choice{min-height:80px;padding:12px 13px;gap:11px;}
+      .symbol{width:43px;height:43px;}
+      .chart.chart-14{padding:10px 8px;}
+      .week-grid{gap:4px;}
+      .day-date,.chart.chart-14 .day .value{font-size:11px;}
+    }
+    @media(max-height:720px) and (max-width:599px){
+      .header {padding-top:7px;padding-bottom:7px;}
+      .main {padding-top:17px;padding-bottom:15px;}
+      .kicker {margin-bottom:7px;}
+      h1 {font-size:42px;margin-bottom:8px;}
+      .hero-note {font-size:15px;margin-bottom:12px;}
+      .choice {min-height:75px;padding-top:10px;padding-bottom:10px;}
+      .choices {gap:8px;}
+      .tab {min-height:48px;}
+      .footer {padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom));}
+      .activity{padding:14px 14px;margin:8px 0;}
+      .orb{width:98px;height:98px;border-width:8px;}
+      .timer{font-size:33px;}
+      .option-chip {min-height:44px;}
+    }
+    @media(max-height:600px) and (max-width:599px){
+      .hero-note {margin-bottom:9px;}
+      .choice {min-height:69px;}
+      .choice-copy small{font-size:13px;}
+      .footer{padding-top:3px;padding-bottom:calc(3px + env(safe-area-inset-bottom));}
+    }
+    @media(max-width:599px){
+      /* Two readable week rows, trimmed of redundant labels. */
+      .main:has(.mini-grid){padding-top:14px;padding-bottom:15px;}
+      .main:has(.mini-grid) .kicker{margin-bottom:5px;}
+      .main:has(.mini-grid) h1{font-size:40px;margin-bottom:11px;}
+      .mini-card{padding:10px 14px 9px;}
+      .mini-card strong{font-size:39px;}
+      .mini-grid{margin-bottom:8px;}
+      .quick-buttons{margin-bottom:12px;}
+      .action{min-height:49px;}
+      .section-title{margin-bottom:6px;}
+      .chart.chart-14{gap:6px;padding:10px 10px 8px;}
+      .week-name{display:none;}
+      .week-block+.week-block{padding-top:7px;}
+      .week-grid{gap:4px;}
+      .day{gap:2px;padding:4px 2px 5px;min-height:90px;}
+      .day-numbers{min-height:14px;}
+      .track{height:28px;}
+      .day-date{font-size:10px;}
+      .pause-count{min-height:18px;min-width:28px;font-size:10px;padding:0 5px;}
+      .legend{margin-top:7px;}
+    }
+    @media(min-width:600px){
+      .app{min-height:calc(100dvh - 36px);}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand"><span class="mark" aria-hidden="true"><svg class="brand-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5v7M14.5 8.5v7" stroke-width="2"/></svg></span>PACKPAUSE</div>
+    <button id="settingsButton" class="icon-btn" type="button" aria-label="Settings" title="Settings">⋯</button>
+  </header>
+  <div class="banner hidden" id="demoBanner"><span>DEMO · SAMPLE DATA</span><button type="button" id="endDemo">Exit</button></div>
+  <main class="main" id="content" aria-live="polite"></main>
+  <nav class="footer" aria-label="Main navigation">
+    <button class="tab selected" type="button" data-tab="today"><span aria-hidden="true"><svg class="nav-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3.5v3M16 3.5v3M4 10h16M8.5 14h3M8.5 17h6"/></svg></span>Today</button>
+    <button class="tab" type="button" data-tab="pause"><span aria-hidden="true"><svg class="nav-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5v7M14.5 8.5v7" stroke-width="2"/></svg></span>Pause</button>
+  </nav>
+</div>
+<div class="notice hidden" id="notice" aria-live="polite" role="status"></div>
+<script>
+(()=>{
+  'use strict';
+  const KEY='packpause-v18-final';
+  const LEGACY=['packpause-v18','packpause-v17','packpause-v16','packpause-v15','packpause-v14','packpause-v13','packpause-v12','packpause-v10','packpause-v9','packpause-v8','packpause-v7','packpause-v6','packpause-v5','packpause-v4','packpause-v3','packpause-v2','packpause-v1'];
+  const $=q=>document.querySelector(q);
+  const root=$('#content');
+  const dateString=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const today=()=>dateString(new Date());
+  const shifted=i=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+i);return d;};
+  const validDay=s=>{if(typeof s!=='string'||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(s))return false;const [y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d,12);return dt.getFullYear()===y&&dt.getMonth()+1===m&&dt.getDate()===d;};
+  const isValidStamp=s=>typeof s==='string'&&!Number.isNaN(new Date(s).getTime());
+  const number=(v,max=100)=>Number.isFinite(Number(v))?Math.max(0,Math.min(max,Math.round(Number(v)))):0;
+  const blank=()=>({entries:[],completedDays:{},dailyDrafts:{},pauseTotals:{},cigarettes:[],smokeFreeDays:[],createdAt:new Date().toISOString()});
+  function clean(src){
+    const d=blank();if(!src||typeof src!=='object'||Array.isArray(src))return d;
+    if(Array.isArray(src.entries))d.entries=src.entries.filter(e=>e&&['stress','boredom','social','general'].includes(e.trigger)&&['avoided','smoked','unsure'].includes(e.outcome)&&isValidStamp(e.at)).slice(-2000).map(e=>({at:e.at,trigger:e.trigger,outcome:e.outcome}));
+    for(const key of ['completedDays','dailyDrafts','pauseTotals']){const obj=src[key];if(obj&&typeof obj==='object'&&!Array.isArray(obj))for(const [date,n] of Object.entries(obj).slice(-600))if(validDay(date)&&Number.isInteger(n)&&n>=0&&n<=1000)d[key][date]=n;}
+    if(Array.isArray(src.cigarettes))d.cigarettes=src.cigarettes.filter(e=>e&&isValidStamp(e.at)).slice(-2000).map(e=>({at:e.at,count:number(e.count)}));
+    if(Array.isArray(src.smokeFreeDays))d.smokeFreeDays=src.smokeFreeDays.filter(validDay).slice(-600);
+    return d;
+  }
+  function read(){for(const key of [KEY,...LEGACY])try{const s=localStorage.getItem(key);if(s)return clean(JSON.parse(s));}catch(e){}return blank();}
+  let saved=read(),sample=null,demo=new URLSearchParams(location.search).get('mode')==='demo';
+  let view='today',trigger='stress',interval=null,running=false,seconds=60,deadline=0,toastTimeout=null,lastRotatedQuoteSecond=null;
+  const model=()=>demo?sample:saved;
+  const stamp=()=>new Date().toISOString();
+  function commit(change){const before=JSON.stringify(model());change(model());if(demo)return {ok:true,before};try{localStorage.setItem(KEY,JSON.stringify(saved));return {ok:true,before};}catch(e){saved=JSON.parse(before);return {ok:false,before};}}
+  function notify(message,undo){const el=$('#notice');clearTimeout(toastTimeout);el.replaceChildren(document.createTextNode(message));if(undo){const btn=document.createElement('button');btn.type='button';btn.textContent='Undo';btn.onclick=()=>{clearTimeout(toastTimeout);el.classList.add('hidden');undo();};el.append(btn);}el.classList.remove('hidden');toastTimeout=setTimeout(()=>el.classList.add('hidden'),undo?6500:3000);}
+  function mutate(change,message='Saved.'){
+    const outcome=commit(change);if(outcome.ok){render();notify(message,()=>{if(demo){sample=JSON.parse(outcome.before);render();notify('Undone.');}else{const current=JSON.stringify(saved);saved=JSON.parse(outcome.before);try{localStorage.setItem(KEY,JSON.stringify(saved));render();notify('Undone.');}catch(e){saved=JSON.parse(current);render();notify('Could not undo.');}}});}
+    else{render();notify('Could not save on this device.');}
+  }
+  function resetTimer(){if(interval)clearInterval(interval);interval=null;running=false;}
+  function navigate(to){resetTimer();view=to;window.scrollTo(0,0);const active=['activity','check','pause'].includes(to)?'pause':to==='settings'?null:'today';document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b.dataset.tab===active);if(b.dataset.tab===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});$('#demoBanner').classList.toggle('hidden',!demo);render();}
+  function render(){switch(view){case 'pause':return pause();case 'activity':return activity();case 'check':return check();case 'settings':return settings();default:return todayView();}}
+  function getCount(date,d=model()){
+    if(Object.prototype.hasOwnProperty.call(d.completedDays,date))return {count:d.completedDays[date],status:date===today()?'partial':'complete'};
+    if(Object.prototype.hasOwnProperty.call(d.dailyDrafts,date))return {count:d.dailyDrafts[date],status:'partial'};
+    const rows=d.cigarettes.filter(x=>dateString(new Date(x.at))===date);
+    if(rows.length)return {count:rows.reduce((a,b)=>a+number(b.count),0),status:'partial'};
+    if(d.smokeFreeDays.includes(date))return {count:0,status:'partial'};
+    return {count:0,status:'none'};
+  }
+  function getPauseCount(date,d=model()){
+    if(d.pauseTotals&&Object.prototype.hasOwnProperty.call(d.pauseTotals,date))return number(d.pauseTotals[date],1000);
+    return d.entries.filter(e=>e.outcome==='avoided'&&dateString(new Date(e.at))===date).length;
+  }
+  function incrementPause(d,date=today()){
+    if(!d.pauseTotals||typeof d.pauseTotals!=='object')d.pauseTotals={};
+    d.pauseTotals[date]=Math.min(1000,getPauseCount(date,d)+1);
+  }
+  function addOne(d,date=today()){
+    const old=getCount(date,d);d.dailyDrafts[date]=Math.min(100,old.count+1);delete d.completedDays[date];
+  }
+  function todayView(){
+    const d=model();
+    const todaySmoked=getCount(today(),d);
+    const todayPaused=getPauseCount(today(),d);
+    const dates=Array.from({length:14},(_,i)=>dateString(shifted(i-13)));
+    const rows=dates.map(date=>({...getCount(date,d),paused:getPauseCount(date,d),date}));
+    const max=Math.max(5,...rows.map(x=>x.count));
+    const totalSmoked=rows.reduce((a,b)=>a+b.count,0);
+    const totalPaused=rows.reduce((a,b)=>a+b.paused,0);
+    const makeDay=(r)=>{const dt=new Date(r.date+'T12:00:00'),label=String(dt.getDate()),height=r.status==='none'?3:r.count===0?3:Math.max(4,Math.round(25*r.count/max));const cigarettes=r.status==='none'?'—':r.count;return `<div class="day" title="${r.date}: ${r.status==='none'?'no cigarette record':r.count+' cigarettes'}; ${r.paused} pauses"><div class="day-numbers"><span class="value">S ${cigarettes}</span></div><div class="track"><div class="bar ${r.status==='complete'?'':'partial'} ${r.status==='none'?'none':''} ${r.status!=='none'&&r.count===0?'zero':''}" style="height:${height}px"></div></div><span class="day-date">${label}</span><span class="pause-count" aria-label="${r.paused} pauses">P ${r.paused}</span></div>`;};
+    const chart=`<div class="week-block"><div class="week-name">DAYS 1–7</div><div class="week-grid">${rows.slice(0,7).map(makeDay).join('')}</div></div><div class="week-block"><div class="week-name">DAYS 8–14</div><div class="week-grid">${rows.slice(7).map(makeDay).join('')}</div></div>`;
+    const dayLabel=new Date().toLocaleDateString('en-SG',{weekday:'long',day:'numeric',month:'short'});
+    root.innerHTML=`<div class="screen"><p class="kicker">TODAY · ${dayLabel.toUpperCase()}</p><h1>Today.</h1><div class="top-actions"><button type="button" class="ghost-link" id="openPause"><span aria-hidden="true"><svg class="nav-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.5v7M14.5 8.5v7" stroke-width="2"/></svg></span>Pause</button><button type="button" class="ghost-link soft" id="openSettings">Menu</button></div><div class="mini-grid"><div class="mini-card"><span class="mini-label">Smoked</span><strong>${todaySmoked.status==='none'?'—':todaySmoked.count}</strong></div><div class="mini-card accent"><span class="mini-label">Paused</span><strong>${todayPaused}</strong></div></div><div class="quick-buttons"><button type="button" class="action" id="smoked"><span aria-hidden="true">＋</span>Smoked</button><button type="button" class="action primary" id="notNow"><span aria-hidden="true">✓</span>Paused</button></div><div class="section-title">Last 14 days <span class="hint">${totalSmoked} smoked · ${totalPaused} paused</span></div>${rows.some(r=>r.status!=='none'||r.paused)?`<div class="chart chart-14" role="img" aria-label="Fourteen-day chart. Each day shows S for smoked and P for paused.">${chart}</div><p class="tiny legend"><span class="legend-key"><i class="legend-bar"></i>S = smoked</span><span class="legend-key"><i class="legend-dot"></i>P = paused</span></p>`:'<div class="empty-chart">Your first record starts today.</div>'}<details><summary>Edit totals</summary><form class="inside" id="dailyForm"><div class="inputs inputs-3"><div><label class="field" for="logDate">Date</label><input class="input" id="logDate" type="date" required max="${today()}" value="${today()}"></div><div><label class="field" for="logCount">Smoked</label><input class="input" id="logCount" type="number" min="0" max="100" step="1" required value="${todaySmoked.status==='none'?'':todaySmoked.count}" placeholder="0"></div><div><label class="field" for="logPause">Paused</label><input class="input" id="logPause" type="number" min="0" max="1000" step="1" required value="${todayPaused}" placeholder="0"></div></div><button type="submit" class="button">Save</button><p class="tiny">Fix a tap if needed.</p></form></details></div>`;
+    $('#openPause').onclick=()=>navigate('pause');
+    $('#openSettings').onclick=()=>navigate('settings');
+    $('#smoked').onclick=()=>mutate(addOne,'Smoked saved.');
+    $('#notNow').onclick=()=>mutate(x=>{incrementPause(x);x.entries.push({at:stamp(),trigger:'general',outcome:'avoided'});},'Paused saved.');
+    $('#logDate').onchange=()=>{const date=$('#logDate').value;const item=getCount(date,d);$('#logCount').value=item.status==='none'?'':String(item.count);$('#logPause').value=String(getPauseCount(date,d));};
+    $('#dailyForm').onsubmit=e=>{e.preventDefault();const date=$('#logDate').value,smoked=Number($('#logCount').value),paused=Number($('#logPause').value);if(!validDay(date)||date>today()||!Number.isInteger(smoked)||smoked<0||smoked>100||!Number.isInteger(paused)||paused<0||paused>1000){notify('Check the totals.');return;}mutate(x=>{if(date===today()){x.dailyDrafts[date]=smoked;delete x.completedDays[date];}else{x.completedDays[date]=smoked;delete x.dailyDrafts[date];}if(!x.pauseTotals||typeof x.pauseTotals!=='object')x.pauseTotals={};x.pauseTotals[date]=paused;},'Totals saved.');};
+  }
+  function pause(){
+    root.innerHTML=`<div class="screen"><p class="kicker">PACKPAUSE</p><h1>Pause.</h1><p class="hero-note">One moment. Your choice.</p><div class="top-actions"><button type="button" class="ghost-link" id="openToday"><span aria-hidden="true"><svg class="nav-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3.5v3M16 3.5v3M4 10h16M8.5 14h3M8.5 17h6"/></svg></span>Today</button><button type="button" class="ghost-link soft" id="openSettings">Menu</button></div><div class="choices"><button class="choice" data-trigger="stress"><span class="symbol" aria-hidden="true"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 8c2.5-3 4.5 3 7 0s4.5-3 7 0 3.5.5 4 0"/><path d="M3 16c2.5-3 4.5 3 7 0s4.5-3 7 0 3.5.5 4 0"/></svg></span><span class="choice-copy">Stress<small>slow it down</small></span><span class="arrow" aria-hidden="true">›</span></button><button class="choice" data-trigger="boredom"><span class="symbol" aria-hidden="true"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17v4m-2-2h4M5 17v3m-1.5-1.5h3"/></svg></span><span class="choice-copy">Boredom<small>break the pattern</small></span><span class="arrow" aria-hidden="true">›</span></button><button class="choice" data-trigger="social"><span class="symbol" aria-hidden="true"><svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5c-1.25 0-2.7-.36-3.7-.96L4 20l1.4-4.1A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8.7 11.7h7"/></svg></span><span class="choice-copy">Social<small>say something simple</small></span><span class="arrow" aria-hidden="true">›</span></button></div></div>`;
+    $('#openToday').onclick=()=>navigate('today');
+    $('#openSettings').onclick=()=>navigate('settings');
+    root.querySelectorAll('[data-trigger]').forEach(b=>b.onclick=()=>{trigger=b.dataset.trigger;seconds=60;navigate('activity');});
+  }
+  function activity(){
+    const type=trigger||'stress';let inside='';
+    if(type==='stress')inside=`<div class="activity"><div class="orb" id="orb">Breathe</div><div class="timer" id="timer">01:00</div><div id="breathText" class="subtle">In for 4 · Out for 6</div><p class="encourage" id="encourageText"></p></div><button class="timer-control" id="startTimer" type="button">Pause timer</button><button class="button" id="continue" type="button">Continue</button>`;
+    if(type==='boredom')inside=`<div class="activity"><div class="big">Try one.</div><div class="option-list"><button class="option-chip" data-choice="Water" type="button">Water</button><button class="option-chip" data-choice="Walk" type="button">Walk</button><button class="option-chip" data-choice="Nicotine gum" type="button">Nicotine gum</button><button class="option-chip" data-choice="Text someone" type="button">Text someone</button></div><p class="hint">Pick the easiest one now.</p></div>`;
+    if(type==='social')inside=`<div class="activity"><div class="big">Try saying:</div><div class="option-list"><button class="option-chip" data-choice="I'm good, not now." type="button">I'm good, not now.</button><button class="option-chip" data-choice="You go ahead. I'll pass." type="button">You go ahead. I'll pass.</button><button class="option-chip" data-choice="I'm cutting down." type="button">I'm cutting down.</button><button class="option-chip" data-choice="I'll still come, just not smoking." type="button">I'll still come, just not smoking.</button></div><p class="hint">Pick one that feels natural.</p></div>`;
+    root.innerHTML=`<div class="screen"><button class="back" id="back" type="button">← Back</button><p class="kicker">${type.toUpperCase()==='SOCIAL'?'SOCIAL':type.toUpperCase()}</p><h2>${type==='stress'?'Take a minute.':type==='boredom'?'Shift it.':'Say less.'}</h2>${inside}</div>`;
+    $('#back').onclick=()=>navigate('pause');
+    if(type==='stress'){
+      let lastQuote='';lastRotatedQuoteSecond=null;
+      const quotes=['You can let this pass.','One minute is enough to reset.','A smaller choice still counts.','You do not need to light it now.','This urge will move on.','One pause can change the next hour.'];
+      const setQuote=()=>{const options=quotes.filter(q=>q!==lastQuote);lastQuote=options[Math.floor(Math.random()*options.length)]||quotes[0];const el=$('#encourageText');if(el)el.textContent=lastQuote;};
+      setQuote();
+      $('#continue').onclick=()=>navigate('check');
+      $('#startTimer').onclick=()=>{const b=$('#startTimer'),o=$('#orb');if(running){resetTimer();b.textContent='Resume timer';o.classList.remove('animating');o.textContent='Paused';return;}if(seconds<=0)seconds=60;running=true;deadline=Date.now()+seconds*1000;b.textContent='Pause timer';o.style.animationDelay=`-${(60-seconds)%10}s`;o.classList.add('animating');tick(setQuote);interval=setInterval(()=>tick(setQuote),250);};
+      $('#startTimer').click();
+      return;
+    }
+    root.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>navigate('check'));
+  }
+  function tick(updateQuote){if(!running)return;seconds=Math.max(0,Math.ceil((deadline-Date.now())/1000));const timer=$('#timer'),o=$('#orb'),btn=$('#startTimer');if(!timer||!o||!btn){resetTimer();return;}timer.textContent=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;o.textContent=(60-seconds)%10<4?'Breathe in':'Breathe out';if(updateQuote&&seconds>0&&seconds<60&&seconds%12===0&&seconds!==lastRotatedQuoteSecond){lastRotatedQuoteSecond=seconds;updateQuote();}if(seconds===0){resetTimer();o.classList.remove('animating');o.textContent='Done';btn.textContent='Restart timer';$('#breathText').textContent='You took a moment.';}}
+  function check(){
+    root.innerHTML=`<div class="screen"><button class="back" type="button" id="back">← Back</button><p class="kicker">CHECK-IN</p><h1>Result.</h1><div class="results"><button type="button" class="result-option" data-outcome="avoided"><span aria-hidden="true">✓</span>No smoke</button><button type="button" class="result-option" data-outcome="smoked"><span aria-hidden="true">＋</span>Smoked +1</button><button type="button" class="result-option" data-outcome="unsure"><span aria-hidden="true">•</span>Later</button></div><p class="result-quiet">Just a record.</p></div>`;
+    $('#back').onclick=()=>navigate('activity');root.querySelectorAll('[data-outcome]').forEach(b=>b.onclick=()=>{
+      const outcome=b.dataset.outcome,update=commit(d=>{if(outcome==='avoided')incrementPause(d);d.entries.push({at:stamp(),trigger,outcome});if(outcome==='smoked')addOne(d);});
+      navigate('today');if(!update.ok){notify('Could not save on this device.');return;}
+      notify('Recorded.',()=>{if(demo){sample=JSON.parse(update.before);render();notify('Undone.');}else{saved=JSON.parse(update.before);try{localStorage.setItem(KEY,JSON.stringify(saved));render();notify('Undone.');}catch(e){notify('Could not undo.');}}});
+    });
+  }
+  function sampleData(){const d=blank();const smoked=[7,6,7,5,6,4,5,4,3,4,3,2,3,2];const paused=[0,1,1,1,2,1,2,2,2,3,2,3,4,3];smoked.forEach((n,i)=>{const date=dateString(shifted(i-13));if(i>=12)d.dailyDrafts[date]=n;else d.completedDays[date]=n;d.pauseTotals[date]=paused[i];});[['stress','avoided'],['social','smoked'],['general','avoided'],['boredom','avoided'],['stress','avoided'],['general','avoided'],['social','unsure']].forEach(([trigger,outcome],i)=>d.entries.push({trigger,outcome,at:shifted(i-6).toISOString()}));return d;}
+  function setDemo(on){demo=on;sample=on?sampleData():null;try{const u=new URL(location.href);u.search=on?'?mode=demo':'';history.replaceState(null,'',u.toString());}catch(e){}navigate('today');notify(on?'Sample data only.':'Demo closed.');}
+  function nfcURL(){const u=new URL(location.href);u.hash='';u.search='';return u.toString();}
+  function settings(){const url=nfcURL();root.innerHTML=`<div class="screen"><button class="back" id="back" type="button">← Back</button><p class="kicker">PACKPAUSE</p><h1>Settings.</h1><div class="setting-item"><h3>Demo mode</h3><p>Sample records for presentation.</p><button class="button secondary" id="demoToggle" type="button">${demo?'Exit demo':'Try demo'}</button></div><div class="setting-item"><h3>NFC link</h3><p>Use this same link for NFC and the Safari home-screen shortcut.</p><div class="mono" id="linkText"></div><button class="button secondary" id="copyLink" type="button">Copy link</button></div><div class="setting-item"><h3>Your data</h3><p>Stored only in this browser.</p><div class="buttons"><button class="button secondary" id="export" type="button" ${demo?'disabled':''}>Export data</button><button class="button light" id="delete" type="button" ${demo?'disabled':''}>Delete data</button></div></div><p class="tiny">Student prototype. Professional support can help.</p></div>`;
+    $('#linkText').textContent=url;$('#back').onclick=()=>navigate('today');$('#demoToggle').onclick=()=>setDemo(!demo);
+    $('#copyLink').onclick=async()=>{try{await navigator.clipboard.writeText(url);notify('Link copied.');}catch(e){const s=window.getSelection(),r=document.createRange();r.selectNodeContents($('#linkText'));s.removeAllRanges();s.addRange(r);notify('Link selected. Copy manually.');}};
+    $('#export').onclick=()=>{if(demo)return;const blob=new Blob([JSON.stringify(saved,null,2)],{type:'application/json'}),uri=URL.createObjectURL(blob),a=document.createElement('a');a.href=uri;a.download='packpause-'+today()+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(uri),1200);};
+    $('#delete').onclick=()=>{if(demo||!confirm('Delete your data on this device?'))return;const before=JSON.stringify(saved);saved=blank();try{localStorage.setItem(KEY,JSON.stringify(saved));navigate('today');notify('Data deleted.');}catch(e){saved=JSON.parse(before);notify('Could not delete data.');}};
+  }
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>navigate(b.dataset.tab));$('#settingsButton').onclick=()=>navigate('settings');$('#endDemo').onclick=()=>setDemo(false);
+  if(demo)sample=sampleData();
+  navigate('pause');
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&running){resetTimer();const o=$('#orb'),b=$('#startTimer');if(o){o.classList.remove('animating');o.textContent='Paused';}if(b)b.textContent='Resume timer';}});
+})();
+</script>
+</body>
+</html>
